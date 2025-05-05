@@ -1,0 +1,78 @@
+def simple_hash(name, size):
+    return sum(ord(c) for c in name) % size
+
+# Chaining method
+class HashTableChaining:
+    def __init__(self, size):
+        self.size = size
+        self.table = [[] for _ in range(size)]
+
+    def insert(self, name, phone):
+        index = simple_hash(name, self.size)
+        self.table[index].append((name, phone))
+
+    def search(self, name):
+        index = simple_hash(name, self.size)
+        comparisons = 0
+        for item in self.table[index]:
+            comparisons += 1
+            if item[0] == name:
+                return item[1], comparisons
+        return None, comparisons
+
+# Linear Probing method
+class HashTableLinearProbing:
+    def __init__(self, size):
+        self.size = size
+        self.table = [None] * size
+
+    def insert(self, name, phone):
+        index = simple_hash(name, self.size)
+        while self.table[index] is not None:
+            index = (index + 1) % self.size
+        self.table[index] = (name, phone)
+
+    def search(self, name):
+        index = simple_hash(name, self.size)
+        comparisons = 0
+        start = index
+        while self.table[index] is not None:
+            comparisons += 1
+            if self.table[index][0] == name:
+                return self.table[index][1], comparisons
+            index = (index + 1) % self.size
+            if index == start:
+                break
+        return None, comparisons
+
+# Main program
+n = int(input("Enter number of clients: "))
+size = n + 5  # Extra space to reduce collisions
+
+chain_table = HashTableChaining(size)
+linear_table = HashTableLinearProbing(size)
+
+# Input client data
+for _ in range(n):
+    name = input("Enter client name: ")
+    phone = input("Enter phone number: ")
+    chain_table.insert(name, phone)
+    linear_table.insert(name, phone)
+
+# Search and compare
+print("\n--- Search Results ---")
+for _ in range(n):
+    name = input("Enter name to search: ")
+    phone1, cmp1 = chain_table.search(name)
+    phone2, cmp2 = linear_table.search(name)
+
+    print(f"Name: {name}")
+    if phone1:
+        print(f"  Found (Chaining): {phone1}, Comparisons: {cmp1}")
+    else:
+        print(f"  Not Found (Chaining), Comparisons: {cmp1}")
+
+    if phone2:
+        print(f"  Found (Linear Probing): {phone2}, Comparisons: {cmp2}")
+    else:
+        print(f"  Not Found (Linear Probing), Comparisons: {cmp2}")
